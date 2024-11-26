@@ -7,6 +7,15 @@
   <img alt="github contribution grid snake animation" src="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/output/github-contribution-grid-snake.svg">
 </picture>
 <!--START_SECTION:waka-->
+
+```txt
+Python       11 hrs 39 mins  ████████████████░░░░░░░░░   64.40 %
+HTML         3 hrs 43 mins   █████░░░░░░░░░░░░░░░░░░░░   20.55 %
+JavaScript   1 hr 47 mins    ██▒░░░░░░░░░░░░░░░░░░░░░░   09.89 %
+Markdown     27 mins         ▓░░░░░░░░░░░░░░░░░░░░░░░░   02.50 %
+JSON         8 mins          ▒░░░░░░░░░░░░░░░░░░░░░░░░   00.77 %
+```
+
 <!--END_SECTION:waka-->
 <!--
 **CNCoreSteb/CNCoreSteb** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
