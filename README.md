@@ -1,6 +1,6 @@
 ## Hi there 👋
-![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=CNCoreSteb)
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=CNCoreSteb)
+![Anurag's GitHub stats](https://githubreadme-93cp.vercel.app/api?username=CNCoreSteb)
+![Top Langs](https://githubreadme-93cp.vercel.app/api/top-langs/?username=CNCoreSteb)
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/output/github-contribution-grid-snake-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/output/github-contribution-grid-snake.svg">
