@@ -10,11 +10,7 @@
 <!--START_SECTION:waka-->
 
 ```txt
-Kotlin              1 hr 24 mins    ████████████▓░░░░░░░░░░░░   51.07 %
-XML                 46 mins         ███████░░░░░░░░░░░░░░░░░░   27.97 %
-Other               11 mins         █▓░░░░░░░░░░░░░░░░░░░░░░░   06.82 %
-Java Properties     8 mins          █▒░░░░░░░░░░░░░░░░░░░░░░░   04.91 %
-Gradle Kotlin DSL   8 mins          █▒░░░░░░░░░░░░░░░░░░░░░░░   04.89 %
+No activity tracked
 ```
 
 <!--END_SECTION:waka-->
