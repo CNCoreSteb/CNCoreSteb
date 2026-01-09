@@ -10,7 +10,11 @@
 <!--START_SECTION:waka-->
 
 ```txt
-No activity tracked
+Rust         3 hrs 26 mins   ████████████████░░░░░░░░░   63.35 %
+YAML         1 hr 7 mins     █████░░░░░░░░░░░░░░░░░░░░   20.55 %
+Markdown     37 mins         ███░░░░░░░░░░░░░░░░░░░░░░   11.59 %
+TOML         10 mins         ▓░░░░░░░░░░░░░░░░░░░░░░░░   03.10 %
+Git Config   3 mins          ▒░░░░░░░░░░░░░░░░░░░░░░░░   01.23 %
 ```
 
 <!--END_SECTION:waka-->
