@@ -1,0 +1,54 @@
+name: WakaTime Card
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "13 0 * * *" # daily 00:13 UTC = 10:13 Brisbane
+
+# nothing by default; the job below asks only for what it needs
+permissions: {}
+
+concurrency:
+  group: waka-card
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # push the rendered cards to the `waka` branch
+    steps:
+      # the only external action: GitHub's own checkout, pinned to a commit
+      - name: Check out the script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      # stdlib-only Python already on the runner: no pip, no third-party code
+      - name: Render cards
+        env:
+          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
+          WAKA_RANGE: last_7_days
+          WAKA_TOP: "5"
+          WAKA_IGNORE: "GDScript, GDScript3"
+          WAKA_TZ: Australia/Brisbane
+          WAKA_USER: CN_CoreSteb
+        run: python3 -I .github/scripts/waka_card.py "$RUNNER_TEMP/waka"
+
+      # force-push a single commit to an orphan branch, so main never gets bot commits
+      - name: Publish to the waka branch
+        working-directory: ${{ runner.temp }}/waka
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git init -q -b waka
+          git add waka-dark.svg waka-light.svg
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Update WakaTime card"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $auth" \
+              push -q -f "https://github.com/${GITHUB_REPOSITORY}.git" HEAD:waka
