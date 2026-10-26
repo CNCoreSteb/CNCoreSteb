@@ -68,11 +68,11 @@ zh_CN.UTF-8  en_AU.UTF-8
 <!--START_SECTION:waka-->
 
 ```txt
-Markdown         25 hrs 31 mins        █████████░░░░░░░░░░░░░░░░   36.48 %
-GDScript3        13 hrs 43 mins        █████░░░░░░░░░░░░░░░░░░░░   19.63 %
-Python           9 hrs 37 mins         ███▒░░░░░░░░░░░░░░░░░░░░░   13.77 %
-TypeScript       8 hrs 21 mins         ███░░░░░░░░░░░░░░░░░░░░░░   11.94 %
-Other            5 hrs 3 mins          █▓░░░░░░░░░░░░░░░░░░░░░░░   07.23 %
+Markdown         22 hrs 3 mins         █████████░░░░░░░░░░░░░░░░   35.99 %
+GDScript3        12 hrs 41 mins        █████▒░░░░░░░░░░░░░░░░░░░   20.70 %
+Python           8 hrs 58 mins         ███▓░░░░░░░░░░░░░░░░░░░░░   14.63 %
+TypeScript       7 hrs 9 mins          ███░░░░░░░░░░░░░░░░░░░░░░   11.68 %
+Other            3 hrs 36 mins         █▒░░░░░░░░░░░░░░░░░░░░░░░   05.87 %
 ```
 
 <!--END_SECTION:waka-->
