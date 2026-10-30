@@ -1,0 +1,57 @@
+name: Streak
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "43 0 * * *" # daily 00:43 UTC = 10:43 Brisbane
+  # redraw straight away when the script or this workflow changes
+  push:
+    branches:
+      - main
+    paths:
+      - .github/scripts/streak.py
+      - .github/workflows/streak.yml
+
+# nothing by default; the job below asks only for what it needs
+permissions: {}
+
+concurrency:
+  group: streak
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # push the rendered cards to the `streak` branch
+    steps:
+      # the only external action: GitHub's own checkout, pinned to a commit
+      - name: Check out the script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      # stdlib-only Python already on the runner: no pip, no third-party code
+      - name: Render cards
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          STREAK_USER: ${{ github.repository_owner }}
+        run: python3 -I .github/scripts/streak.py "$RUNNER_TEMP/streak"
+
+      # force-push a single commit to an orphan branch, so main never gets bot commits
+      - name: Publish to the streak branch
+        working-directory: ${{ runner.temp }}/streak
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git init -q -b streak
+          git add streak-dark.svg streak-light.svg
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Update streak card"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $auth" \
+              push -q -f "https://github.com/${GITHUB_REPOSITORY}.git" HEAD:streak

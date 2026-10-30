@@ -1,24 +1,63 @@
-name: GitHub-Profile-3D-Contrib
+name: 3D Contributions
 
 on:
-  schedule: # 03:00 JST == 18:00 UTC
-    - cron: "0 18 * * *"
+  schedule:
+    - cron: "0 18 * * *" # daily 18:00 UTC = 04:00 Brisbane
   workflow_dispatch:
+  # redraw straight away when the script or this workflow changes
+  push:
+    branches:
+      - main
+    paths:
+      - .github/scripts/contrib3d.py
+      - .github/workflows/3dprofile.yml
+
+# nothing by default; the job below asks only for what it needs
+permissions: {}
+
+concurrency:
+  group: 3d-contrib
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: generate-github-profile-3d-contrib
+    timeout-minutes: 5
+    permissions:
+      contents: write # push the rendered SVGs to the `3d` branch
     steps:
-      - uses: actions/checkout@v3
-      - uses: yoshi389111/github-profile-3d-contrib@0.7.1
+      # the only external action: GitHub's own checkout, pinned to a commit
+      - name: Check out the script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      # stdlib-only Python already on the runner: no pip, no third-party code;
+      # one random light style and one random dark style; the README picks by theme
+      - name: Render today's styles
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: ${{ github.repository_owner }}
-      - name: Commit & Push
+          GITHUB_TOKEN: ${{ github.token }}
+          CONTRIB3D_USER: ${{ github.repository_owner }}
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add -A .
-          git commit -m "generated"
-          git push
+          light=$(shuf -n1 -e green south-season gitblock)
+          dark=$(shuf -n1 -e night-view night-green night-rainbow)
+          python3 -I .github/scripts/contrib3d.py "$RUNNER_TEMP/3d" --light "$light" --dark "$dark"
+          echo "PICKED=$light, $dark" >> "$GITHUB_ENV"
+          echo "light: \`$light\` · dark: \`$dark\`" >> "$GITHUB_STEP_SUMMARY"
+
+      # force-push a single commit to an orphan branch, so main never gets bot commits
+      - name: Push to the 3d branch
+        working-directory: ${{ runner.temp }}/3d
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git init -q -b 3d
+          git add 3d-light.svg 3d-dark.svg
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Update 3D contribution graphs ($PICKED)"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $auth" \
+              push -q -f "https://github.com/${GITHUB_REPOSITORY}.git" HEAD:3d
