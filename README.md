@@ -49,17 +49,9 @@ zh_CN.UTF-8  en_AU.UTF-8
 
 <div align="center">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://githubreadme-93cp.vercel.app/api?username=CNCoreSteb&show_icons=true&hide_border=true&include_all_commits=true&theme=github_dark" />
-  <img height="170" alt="GitHub stats" src="https://githubreadme-93cp.vercel.app/api?username=CNCoreSteb&show_icons=true&hide_border=true&include_all_commits=true&theme=default" />
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://githubreadme-93cp.vercel.app/api/top-langs/?username=CNCoreSteb&layout=compact&langs_count=8&hide_border=true&theme=github_dark" />
-  <img height="170" alt="Top languages" src="https://githubreadme-93cp.vercel.app/api/top-langs/?username=CNCoreSteb&layout=compact&langs_count=8&hide_border=true&theme=default" />
-</picture>
-<br />
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://streak-stats.demolab.com?user=CNCoreSteb&hide_border=true&theme=dark&background=0D1117" />
-  <img alt="GitHub streak" src="https://streak-stats.demolab.com?user=CNCoreSteb&hide_border=true&theme=default" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/stats/stats-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/stats/stats-light.svg" />
+  <img alt="GitHub stats" src="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/stats/stats-light.svg" />
 </picture>
 </div>
 
