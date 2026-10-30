@@ -41,14 +41,19 @@ def wave(edge: tuple[float, ...], top: bool, h: int) -> str:
     return (f"M0 {base} L0 {a} C140 {b} 280 {c} {W / 2} {d} S714 {e} {W} {f} L{W} {base} Z")
 
 
-def layers(frames_a: list, frames_b: list, top: bool, h: int) -> str:
+def layers(main: list, accent: list, top: bool, h: int) -> str:
+    """A translucent accent wave behind a solid main band.
+
+    The main band is opaque, so the title on it reads the same on light and
+    dark pages; the accent only shows past the main band's edge.
+    """
     out = []
-    for frames, begin in ((frames_a, 0), (frames_b, -WAVE_SECONDS / 2)):
+    for frames, begin, opacity in ((accent, -WAVE_SECONDS / 2, ".45"), (main, 0, "1")):
         values = ";".join(wave(f, top, h) for f in frames + [frames[0]])
         n = len(frames)
         times = ";".join(f"{i / n:.3f}" for i in range(n + 1))
         splines = ";".join(["0.45 0 0.55 1"] * n)
-        out.append(f'<path fill="url(#g)" opacity=".45" d="{wave(frames[0], top, h)}">'
+        out.append(f'<path fill="url(#g)" opacity="{opacity}" d="{wave(frames[0], top, h)}">'
                    f'<animate attributeName="d" dur="{WAVE_SECONDS}s" begin="{begin}s" repeatCount="indefinite" '
                    f'calcMode="spline" keyTimes="{times}" keySplines="{splines}" values="{values}"/></path>')
     return "".join(out)
@@ -62,8 +67,9 @@ def gradient(stops: list[str]) -> str:
 
 def header() -> str:
     h = 200
-    a = [(130, 175, 115, 140, 170, 125), (150, 110, 165, 135, 105, 155), (120, 160, 150, 120, 165, 140)]
-    b = [(145, 115, 170, 155, 120, 160), (125, 170, 125, 150, 175, 130), (160, 130, 140, 165, 135, 120)]
+    # the solid band's edge stays well below the subtitle; the accent swings lower
+    a = [(150, 182, 140, 158, 176, 146), (165, 140, 172, 150, 138, 170), (145, 170, 160, 142, 175, 155)]
+    b = [(170, 150, 190, 175, 155, 185), (160, 192, 165, 185, 195, 160), (182, 165, 180, 168, 192, 178)]
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}" '
             f'role="img" aria-label="{escape(TITLE)}: {escape(SUBTITLE)}">'
             f"<style>text{{font-family:{SANS};fill:#FFF}}"
@@ -79,8 +85,8 @@ def header() -> str:
 
 def footer() -> str:
     h = 120
-    a = [(55, 10, 70, 45, 15, 60), (35, 80, 25, 60, 85, 35), (65, 25, 35, 65, 20, 45)]
-    b = [(40, 70, 15, 30, 65, 25), (60, 15, 60, 35, 10, 55), (25, 55, 45, 20, 50, 65)]
+    a = [(60, 40, 78, 55, 45, 70), (72, 75, 48, 66, 80, 50), (50, 62, 70, 76, 52, 62)]
+    b = [(35, 60, 20, 40, 62, 30), (50, 22, 55, 30, 18, 52), (28, 45, 38, 55, 30, 42)]
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}" '
             f'role="img" aria-label="footer wave">'
             + gradient([NAVY, BLUE, SKY]) + layers(a, b, False, h) + "</svg>\n")
