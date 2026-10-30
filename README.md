@@ -87,6 +87,14 @@ Other            3 hrs 25 mins         █▒░░░░░░░░░░░�
 </picture>
 </div>
 
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/3d/3d-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/3d/3d-light.svg" />
+  <img alt="3D contribution calendar" src="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/3d/3d-light.svg" />
+</picture>
+</div>
+
 <!--
 ### 📫 Connect
 <div align="center">
