@@ -32,6 +32,28 @@ zh_CN.UTF-8  en_AU.UTF-8
 
 🌩️ **AtmoSeq** → [atmoseq.com](https://www.atmoseq.com/)
 
+### 🛠️ Tech Stack
+
+<div align="center">
+<img height="40" alt="Python" title="Python" src="./assets/icons/python.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="TypeScript" title="TypeScript" src="./assets/icons/typescript.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="JavaScript" title="JavaScript" src="./assets/icons/javascript.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="Swift" title="Swift" src="./assets/icons/swift.svg" />&nbsp;&nbsp;&nbsp;
+<picture><source media="(prefers-color-scheme: dark)" srcset="./assets/icons/rust-dark.svg" /><img height="40" alt="Rust" title="Rust" src="./assets/icons/rust-light.svg" /></picture>&nbsp;&nbsp;&nbsp;
+<img height="40" alt="Go" title="Go" src="./assets/icons/go.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="Bash" title="Bash" src="./assets/icons/bash.svg" />
+<br />
+<sub>Python · TypeScript · JavaScript · Swift · Rust · Go · Bash</sub>
+<br /><br />
+<picture><source media="(prefers-color-scheme: dark)" srcset="./assets/icons/webgl-dark.svg" /><img height="40" alt="WebGL" title="WebGL" src="./assets/icons/webgl-light.svg" /></picture>&nbsp;&nbsp;&nbsp;
+<img height="40" alt="Astro" title="Astro" src="./assets/icons/astro.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="Linux" title="Linux" src="./assets/icons/linux.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="Git" title="Git" src="./assets/icons/git.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="VS Code" title="VS Code" src="./assets/icons/vscode.svg" />
+<br />
+<sub>WebGL · Astro · Linux · Git · VS Code</sub>
+</div>
+
 ### 🤖 AI Stack
 
 <div align="center">
