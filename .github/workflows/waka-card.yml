@@ -37,8 +37,8 @@ jobs:
       - name: Render cards
         env:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-          WAKA_RANGE: last_7_days
-          WAKA_TOP: "5"
+          WAKA_RANGE: last_30_days
+          WAKA_TOP: "6"
           WAKA_IGNORE: "GDScript, GDScript3, Text"
           WAKA_TZ: Australia/Brisbane
           WAKA_USER: CN_CoreSteb
