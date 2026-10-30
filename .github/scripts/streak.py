@@ -113,20 +113,28 @@ def summarise(days: dict[str, int], today: date) -> dict:
             longest = {"days": (d - run_start).days + 1, "start": run_start.isoformat(), "end": d.isoformat()}
         prev = d
 
-    # a streak is still alive if the last contribution was today or yesterday
-    current = {"days": 0, "start": None, "end": None}
-    count = dict(series)
-    cursor = today if count.get(today) else today - timedelta(days=1)
-    end = cursor
-    while count.get(cursor):
-        current = {"days": (end - cursor).days + 1, "start": cursor.isoformat(), "end": end.isoformat()}
-        cursor -= timedelta(days=1)
+    # weeks run Sunday to Saturday, as on the contribution calendar; a week streak
+    # is still alive if this week or last week had a contribution
+    def week_of(d: date) -> date:
+        return d - timedelta(days=(d.weekday() + 1) % 7)
+
+    week_totals: dict[date, int] = {}
+    for d, n in series:
+        week_totals[week_of(d)] = week_totals.get(week_of(d), 0) + n
+    weeks = {"weeks": 0, "start": None, "end": None}
+    cursor = week_of(today) if week_totals.get(week_of(today)) else week_of(today) - timedelta(weeks=1)
+    while week_totals.get(cursor):
+        weeks["weeks"] += 1
+        cursor -= timedelta(weeks=1)
+    if weeks["weeks"]:
+        in_streak = [d for d in active if d > cursor + timedelta(days=6)]
+        weeks["start"], weeks["end"] = in_streak[0].isoformat(), in_streak[-1].isoformat()
 
     return {
         "today": today.isoformat(),
         "total": sum(n for _, n in series),
         "since": active[0].isoformat() if active else None,
-        "current": current,
+        "weeks": weeks,
         "longest": longest,
     }
 
@@ -147,8 +155,8 @@ def fmt_span(st: dict, today: date) -> str:
 def render(s: dict, t: dict) -> str:
     today = date.fromisoformat(s["today"])
     since = date.fromisoformat(s["since"]) if s["since"] else today
-    cur, best = s["current"], s["longest"]
-    cur_dates = fmt_span(cur, today) if cur["days"] else fmt_day(today, today)
+    wk, best = s["weeks"], s["longest"]
+    wk_dates = fmt_span(wk, today) if wk["weeks"] else fmt_day(today, today)
     best_dates = fmt_span(best, today) if best["days"] else fmt_day(today, today)
 
     def side(x: float, value: str, label: str, dates: str, delay: int) -> str:
@@ -159,7 +167,7 @@ def render(s: dict, t: dict) -> str:
                 f'<text x="{x}" y="145" text-anchor="middle" font-size="12" fill="{t["date"]}">{escape(dates)}</text>'
                 "</g>")
 
-    label = (f"{s['total']:,} contributions since {since:%b %Y}; current streak {cur['days']} days; "
+    label = (f"{s['total']:,} contributions since {since:%b %Y}; week streak {wk['weeks']} weeks; "
              f"longest streak {best['days']} days")
     return "".join([
         '<svg xmlns="http://www.w3.org/2000/svg" width="495" height="195" viewBox="0 0 495 195" '
@@ -173,17 +181,17 @@ def render(s: dict, t: dict) -> str:
         f'<line x1="330" y1="28" x2="330" y2="170" stroke="{t["rule"]}"/>',
         side(82.5, f"{s['total']:,}", "Total Contributions", f"{since:%b} {since.day}, {since.year} - Present", 600),
         side(412.5, f"{best['days']:,}", "Longest Streak", best_dates, 1200),
-        # current streak: a ring with the flame sitting in a gap at the top
+        # week streak: a ring with the flame sitting in a gap at the top
         '<mask id="gap"><rect width="495" height="195" fill="#fff"/><circle cx="247.5" cy="32" r="13" fill="#000"/></mask>',
         f'<circle cx="247.5" cy="71" r="40" stroke="{t["fire"]}" stroke-width="5" mask="url(#gap)"/>',
         f'<g class="fade" style="animation-delay:400ms">'
         f'<path transform="translate(237.5 20) scale(1.25)" fill="{t["fire"]}" d="{FLAME}"/></g>',
         '<g class="fade" style="animation-delay:900ms">'
         f'<text x="247.5" y="81" text-anchor="middle" font-size="28" font-weight="700" fill="{t["num"]}">'
-        f"{cur['days']:,}</text>"
+        f"{wk['weeks']:,}</text>"
         f'<text x="247.5" y="140" text-anchor="middle" font-size="14" font-weight="700" fill="{t["fire"]}">'
-        "Current Streak</text>"
-        f'<text x="247.5" y="166" text-anchor="middle" font-size="12" fill="{t["date"]}">{escape(cur_dates)}</text>'
+        "Week Streak</text>"
+        f'<text x="247.5" y="166" text-anchor="middle" font-size="12" fill="{t["date"]}">{escape(wk_dates)}</text>'
         "</g>",
         "</svg>\n",
     ])
@@ -227,8 +235,8 @@ def main() -> None:
         tmp.write_text(render(stats, theme), encoding="utf-8")
         tmp.replace(target)
 
-    print(f"{stats['total']:,} contributions, current streak {stats['current']['days']}, "
-          f"longest {stats['longest']['days']}")
+    print(f"{stats['total']:,} contributions, week streak {stats['weeks']['weeks']}, "
+          f"longest {stats['longest']['days']} days")
 
 
 if __name__ == "__main__":
