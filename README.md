@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0B1D3A,50:1E4E8C,100:3FA9F5&height=200&section=header&text=CN_CoreSteb&fontSize=64&fontColor=FFFFFF&fontAlignY=36&desc=Weather%20%C2%B7%20Geospatial%20%C2%B7%20AI&descSize=18&descAlignY=58&animation=fadeIn" width="100%" alt="header" />
+<img src="./assets/header.svg" width="100%" alt="CN_CoreSteb: Weather · Geospatial · AI" />
 
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=20&duration=3500&pause=800&color=2F81F7&center=true&vCenter=true&width=600&lines=Software+Development+%40+QUT%2C+Brisbane;Building+AtmoSeq+%E2%80%94+a+weather+analysis+platform;Geospatial+%C2%B7+WebGL+%C2%B7+LLM+Agents;Linux+user+since+2020" alt="typing intro" />
+<img src="./assets/typing.svg" alt="Software Development @ QUT, Brisbane / Building AtmoSeq — a weather analysis platform / Geospatial · WebGL · LLM Agents / Linux user since 2020" />
 
 </div>
 
@@ -35,12 +35,12 @@ zh_CN.UTF-8  en_AU.UTF-8
 ### 🤖 AI Stack
 
 <div align="center">
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/dark/openai.png" /><img height="48" alt="GPT" title="GPT" src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/light/openai.png" /></picture>&nbsp;&nbsp;&nbsp;&nbsp;
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/dark/claude-color.png" /><img height="48" alt="Claude" title="Claude" src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/light/claude-color.png" /></picture>&nbsp;&nbsp;&nbsp;&nbsp;
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/dark/gemini-color.png" /><img height="48" alt="Gemini" title="Gemini" src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/light/gemini-color.png" /></picture>&nbsp;&nbsp;&nbsp;&nbsp;
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/dark/kimi-color.png" /><img height="48" alt="Kimi" title="Kimi" src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/light/kimi.png" /></picture>&nbsp;&nbsp;&nbsp;&nbsp;
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/dark/deepseek-color.png" /><img height="48" alt="DeepSeek" title="DeepSeek" src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/light/deepseek-color.png" /></picture>&nbsp;&nbsp;&nbsp;&nbsp;
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/dark/zai.png" /><img height="48" alt="GLM" title="GLM" src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@1.97.1/light/zai.png" /></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="./assets/icons/openai-dark.png" /><img height="48" alt="GPT" title="GPT" src="./assets/icons/openai-light.png" /></picture>&nbsp;&nbsp;&nbsp;&nbsp;
+<img height="48" alt="Claude" title="Claude" src="./assets/icons/claude.png" />&nbsp;&nbsp;&nbsp;&nbsp;
+<img height="48" alt="Gemini" title="Gemini" src="./assets/icons/gemini.png" />&nbsp;&nbsp;&nbsp;&nbsp;
+<picture><source media="(prefers-color-scheme: dark)" srcset="./assets/icons/kimi-dark.png" /><img height="48" alt="Kimi" title="Kimi" src="./assets/icons/kimi-light.png" /></picture>&nbsp;&nbsp;&nbsp;&nbsp;
+<img height="48" alt="DeepSeek" title="DeepSeek" src="./assets/icons/deepseek.png" />&nbsp;&nbsp;&nbsp;&nbsp;
+<picture><source media="(prefers-color-scheme: dark)" srcset="./assets/icons/zai-dark.png" /><img height="48" alt="GLM" title="GLM" src="./assets/icons/zai-light.png" /></picture>
 <br />
 <sub>GPT · Claude · Gemini · Kimi · DeepSeek · GLM</sub>
 </div>
@@ -92,4 +92,4 @@ zh_CN.UTF-8  en_AU.UTF-8
 </div>
 -->
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:3FA9F5,50:1E4E8C,100:0B1D3A&height=120&section=footer" width="100%" alt="footer" />
+<img src="./assets/footer.svg" width="100%" alt="footer" />
