@@ -4,11 +4,12 @@ on:
   schedule:
     - cron: "0 18 * * *" # daily 18:00 UTC = 04:00 Brisbane
   workflow_dispatch:
-  # redraw straight away when this workflow changes
+  # redraw straight away when the script or this workflow changes
   push:
     branches:
       - main
     paths:
+      - .github/scripts/contrib3d.py
       - .github/workflows/3dprofile.yml
 
 # nothing by default; the job below asks only for what it needs
@@ -23,25 +24,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: write # push the picked SVGs to the `3d` branch
+      contents: write # push the rendered SVGs to the `3d` branch
     steps:
-      # renders all ten styles into ./profile-3d-contrib
-      - name: Generate 3D contribution SVGs
-        uses: yoshi389111/github-profile-3d-contrib@fd54cf20784ed9a86dc7be48bb5eb1f74e92b4f8 # 0.7.1
+      # the only external action: GitHub's own checkout, pinned to a commit
+      - name: Check out the script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      # stdlib-only Python already on the runner: no pip, no third-party code;
+      # one random light style and one random dark style; the README picks by theme
+      - name: Render today's styles
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          USERNAME: ${{ github.repository_owner }}
-
-      # one random light style and one random dark style; the README picks by theme
-      - name: Pick today's styles
-        working-directory: profile-3d-contrib
+          CONTRIB3D_USER: ${{ github.repository_owner }}
         run: |
-          light=$(shuf -n1 -e profile-green-animate.svg profile-south-season-animate.svg profile-gitblock.svg)
-          dark=$(shuf -n1 -e profile-night-view.svg profile-night-green.svg profile-night-rainbow.svg)
-          mkdir -p "$RUNNER_TEMP/3d"
-          cp "$light" "$RUNNER_TEMP/3d/3d-light.svg"
-          cp "$dark" "$RUNNER_TEMP/3d/3d-dark.svg"
-          echo "PICKED=${light%.svg}, ${dark%.svg}" >> "$GITHUB_ENV"
+          light=$(shuf -n1 -e green south-season gitblock)
+          dark=$(shuf -n1 -e night-view night-green night-rainbow)
+          python3 -I .github/scripts/contrib3d.py "$RUNNER_TEMP/3d" --light "$light" --dark "$dark"
+          echo "PICKED=$light, $dark" >> "$GITHUB_ENV"
           echo "light: \`$light\` · dark: \`$dark\`" >> "$GITHUB_STEP_SUMMARY"
 
       # force-push a single commit to an orphan branch, so main never gets bot commits
