@@ -47,11 +47,13 @@ zh_CN.UTF-8  en_AU.UTF-8
 <br /><br />
 <picture><source media="(prefers-color-scheme: dark)" srcset="./assets/icons/webgl-dark.svg" /><img height="40" alt="WebGL" title="WebGL" src="./assets/icons/webgl-light.svg" /></picture>&nbsp;&nbsp;&nbsp;
 <img height="40" alt="Astro" title="Astro" src="./assets/icons/astro.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="PostgreSQL" title="PostgreSQL" src="./assets/icons/postgresql.svg" />&nbsp;&nbsp;&nbsp;
+<img height="40" alt="Docker" title="Docker" src="./assets/icons/docker.svg" />&nbsp;&nbsp;&nbsp;
 <img height="40" alt="Linux" title="Linux" src="./assets/icons/linux.svg" />&nbsp;&nbsp;&nbsp;
 <img height="40" alt="Git" title="Git" src="./assets/icons/git.svg" />&nbsp;&nbsp;&nbsp;
 <img height="40" alt="VS Code" title="VS Code" src="./assets/icons/vscode.svg" />
 <br />
-<sub>WebGL · Astro · Linux · Git · VS Code</sub>
+<sub>WebGL · Astro · PostgreSQL · Docker · Linux · Git · VS Code</sub>
 </div>
 
 ### 🤖 AI Stack

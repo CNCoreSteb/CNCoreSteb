@@ -4,7 +4,7 @@ are trademarks of their respective owners.
 AI Stack (claude, deepseek, gemini, kimi-*, openai-*, zai-*):
   @lobehub/icons-static-png 1.97.1, https://github.com/lobehub/lobe-icons, MIT (below)
 
-Tech Stack, full colour (python, typescript, javascript, swift, go, git, vscode):
+Tech Stack, full colour (python, typescript, javascript, swift, go, postgresql, docker, git, vscode):
   devicon 2.16.0, https://github.com/devicons/devicon, MIT (below)
 
 Tech Stack, single colour (bash, astro, linux, rust-*, webgl-*):
