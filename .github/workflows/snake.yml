@@ -1,4 +1,4 @@
-name: generate animation
+name: Snake
 
 on:
   # every 2 hours (minute 7 avoids the busy top of the hour)
@@ -6,10 +6,13 @@ on:
     - cron: "7 */2 * * *"
   # manual run
   workflow_dispatch:
-  # every push to master
+  # redraw straight away when the script or this workflow changes
   push:
     branches:
-      - master
+      - main
+    paths:
+      - .github/scripts/snake.py
+      - .github/workflows/snake.yml
 
 # nothing by default; the job below asks only for what it needs
 permissions: {}
@@ -39,7 +42,7 @@ jobs:
           SNAKE_USER: ${{ github.repository_owner }}
         run: python3 -I .github/scripts/snake.py "$RUNNER_TEMP/snake"
 
-      # same result as before: the output branch holds just these two files
+      # force-push a single commit to an orphan branch, so main never gets bot commits
       - name: Push to the output branch
         working-directory: ${{ runner.temp }}/snake
         env:
