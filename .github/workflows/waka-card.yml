@@ -4,6 +4,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "13 0 * * *" # daily 00:13 UTC = 10:13 Brisbane
+  # redraw straight away when the script or this workflow changes
+  push:
+    branches:
+      - main
+    paths:
+      - .github/scripts/waka_card.py
+      - .github/workflows/waka-card.yml
 
 # nothing by default; the job below asks only for what it needs
 permissions: {}
@@ -32,7 +39,7 @@ jobs:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
           WAKA_RANGE: last_7_days
           WAKA_TOP: "5"
-          WAKA_IGNORE: "GDScript, GDScript3"
+          WAKA_IGNORE: "GDScript, GDScript3, Text"
           WAKA_TZ: Australia/Brisbane
           WAKA_USER: CN_CoreSteb
         run: python3 -I .github/scripts/waka_card.py "$RUNNER_TEMP/waka"

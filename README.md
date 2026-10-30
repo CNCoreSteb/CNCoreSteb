@@ -65,17 +65,13 @@ zh_CN.UTF-8  en_AU.UTF-8
 
 ### ⏱️ Coding Time
 
-<!--START_SECTION:waka-->
-
-```txt
-GDScript3        20 hrs 51 mins        ███████▒░░░░░░░░░░░░░░░░░   29.48 %
-Markdown         19 hrs                ██████▓░░░░░░░░░░░░░░░░░░   26.86 %
-Python           14 hrs 6 mins         █████░░░░░░░░░░░░░░░░░░░░   19.95 %
-TypeScript       4 hrs 20 mins         █▓░░░░░░░░░░░░░░░░░░░░░░░   06.14 %
-Other            3 hrs 25 mins         █▒░░░░░░░░░░░░░░░░░░░░░░░   04.83 %
-```
-
-<!--END_SECTION:waka-->
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/waka/waka-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/waka/waka-light.svg" />
+  <img alt="WakaTime coding activity" src="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/waka/waka-light.svg" />
+</picture>
+</div>
 
 ### 🐍 Contributions
 
