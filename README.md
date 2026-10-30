@@ -49,9 +49,9 @@ zh_CN.UTF-8  en_AU.UTF-8
 
 <div align="center">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/stats/stats-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/stats/stats-light.svg" />
-  <img alt="GitHub stats" src="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/stats/stats-light.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/streak/streak-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/streak/streak-light.svg" />
+  <img alt="GitHub contribution streak" src="https://raw.githubusercontent.com/CNCoreSteb/CNCoreSteb/streak/streak-light.svg" />
 </picture>
 </div>
 
