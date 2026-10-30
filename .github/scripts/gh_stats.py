@@ -39,14 +39,14 @@ THEMES = {
         "text": "#E6EDF3", "muted": "#8B949E", "gutter": "#484F58", "rule": "#21262D",
         "track": "#21262D", "prompt": "#7EE787", "flag": "#79C0FF", "num": "#FFA657",
         "mode_bg": "#2F81F7", "mode_fg": "#0D1117", "seg_bg": "#21262D",
-        "other": "#8B949E",
+        "other": "#8B949E", "dark": True,
     },
     "light": {
         "bg": "#F6F8FA", "border": "#D0D7DE", "bar": "#EAEEF2",
         "text": "#1F2328", "muted": "#656D76", "gutter": "#8C959F", "rule": "#D8DEE4",
         "track": "#E1E6EB", "prompt": "#116329", "flag": "#0550AE", "num": "#953800",
         "mode_bg": "#0969DA", "mode_fg": "#FFFFFF", "seg_bg": "#D8DEE4",
-        "other": "#6E7781",
+        "other": "#6E7781", "dark": False,
     },
 }
 
@@ -214,6 +214,20 @@ def span(s: dict) -> str:
     return f"{a.day} {a:%b %Y} – {b.day} {b:%b %Y}"
 
 
+def legible(color: str, dark: bool) -> str:
+    """Lift very dark language colours on the dark card, deepen very light ones on the light card."""
+    try:
+        r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
+    except (TypeError, ValueError):
+        return color
+    lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+    if dark and lum < 0.35:
+        r, g, b = (round(c + (255 - c) * 0.4) for c in (r, g, b))
+    elif not dark and lum > 0.7:
+        r, g, b = (round(c * 0.75) for c in (r, g, b))
+    return f"#{r:02X}{g:02X}{b:02X}"
+
+
 def clip(name: str) -> str:
     return name if len(name) <= NAME_MAX else name[: NAME_MAX - 1] + "…"
 
@@ -222,7 +236,7 @@ def render(stats: dict, theme: dict, top_n: int, ignore: set[str], updated: str,
     t = theme
     langs = [(n, s, c) for n, s, c in stats["languages"] if n.lower() not in ignore and s > 0]
     total_bytes = sum(s for _, s, _ in langs)
-    entries = [(n, s, c or t["other"]) for n, s, c in langs[:top_n]]
+    entries = [(n, s, legible(c, t["dark"]) if c else t["other"]) for n, s, c in langs[:top_n]]
     other = sum(s for _, s, _ in langs[top_n:])
     if other > 0:
         entries.append(("Other", other, t["other"]))
@@ -248,9 +262,13 @@ def render(stats: dict, theme: dict, top_n: int, ignore: set[str], updated: str,
         activity += [(num(stats["restricted"]), True), (" private", False), sep]
     info.append(("activity", activity[:-1]))
     repos = stats["public"] + stats["private"]
-    info.append(("repos", [(num(repos), True), (" owned (", False), (num(stats["public"]), True),
-                           (" public · ", False), (num(stats["private"]), True), (" private)", False), sep,
-                           (num(stats["stars"]), True), (" stars" if stats["stars"] != 1 else " star", False)]))
+    if stats["private"]:
+        owned = [(num(repos), True), (" owned (", False), (num(stats["public"]), True), (" public · ", False),
+                 (num(stats["private"]), True), (" private)", False)]
+    else:  # private repos are either absent or invisible to this token; don't claim zero
+        owned = [(num(stats["public"]), True), (" public", False)]
+    info.append(("repos", owned + [sep, (num(stats["stars"]), True),
+                                   (" stars" if stats["stars"] != 1 else " star", False)]))
 
     # code lines: command, info, blank, [header + rows | comment], blank, prompt
     body_lines = 1 + len(info) + 1 + (1 + len(entries) if entries else 1) + 2
