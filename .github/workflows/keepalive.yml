@@ -1,0 +1,49 @@
+name: Keepalive
+
+# GitHub turns off scheduled workflows in a public repository after 60 days
+# without activity, and main no longer gets daily bot commits. Re-enabling
+# each scheduled workflow through the API resets that clock without a commit.
+on:
+  schedule:
+    - cron: "29 3 1 * *" # monthly, the 1st at 03:29 UTC = 13:29 Brisbane
+  workflow_dispatch:
+
+# nothing by default; the job below asks only for what it needs
+permissions: {}
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: true
+
+jobs:
+  enable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write # re-enable workflows through the API
+      contents: read # read the workflow files
+    steps:
+      # the only external action: GitHub's own checkout, pinned to a commit
+      - name: Check out the workflow files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/workflows
+
+      # only files that still exist and run on a schedule (this one included);
+      # a workflow someone switched off by hand stays off
+      - name: Re-enable scheduled workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for file in .github/workflows/*.yml; do
+            grep -q '^ *schedule:' "$file" || continue
+            name=$(basename "$file")
+            state=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$name" --jq .state)
+            if [ "$state" = disabled_manually ]; then
+              echo "skipped $name (switched off by hand)" | tee -a "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+            gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/$name/enable"
+            echo "enabled $name (was $state)" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
