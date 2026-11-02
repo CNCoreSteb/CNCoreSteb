@@ -91,6 +91,22 @@ def fail(msg: str) -> None:
     sys.exit(1)
 
 
+def api_error(e: urllib.error.HTTPError) -> str:
+    """WakaTime's own reason from an error body ({"error": ...} or {"errors": [...]})."""
+    try:
+        body = json.loads(e.read(4096) or b"{}")
+    except (OSError, ValueError):
+        return ""
+    if not isinstance(body, dict):
+        return ""
+    msg = body.get("error") or body.get("errors") or ""
+    if isinstance(msg, list):
+        msg = "; ".join(str(m) for m in msg)
+    # one printable line, so it can't start a workflow command in the Actions log
+    msg = "".join(ch if ch.isprintable() else " " for ch in str(msg)).strip()[:200]
+    return f": {msg}" if msg else ""
+
+
 def fetch(api_base: str, rng: str, key: str) -> dict:
     url = f"{api_base}/users/current/stats/{rng}"
     token = base64.b64encode(key.encode()).decode()
@@ -107,9 +123,15 @@ def fetch(api_base: str, rng: str, key: str) -> dict:
                 status = resp.status
                 data = (json.load(resp) or {}).get("data") or {}
         except urllib.error.HTTPError as e:
-            if e.code in (401, 403):
-                fail(f"WakaTime rejected the API key (HTTP {e.code})")
-            last_err = f"HTTP {e.code}"
+            reason = api_error(e)
+            # retrying can't fix either of these, so stop with WakaTime's own reason
+            if e.code == 401:
+                fail(f"WakaTime rejected the API key (HTTP 401{reason}); "
+                     "create a new key and update the WAKATIME_API_KEY secret")
+            if e.code == 403:
+                fail(f"WakaTime refused the {rng} stats (HTTP 403{reason}); "
+                     "the key was accepted, so this is a permission problem, not a bad key")
+            last_err = f"HTTP {e.code}{reason}"
         except (urllib.error.URLError, TimeoutError, ValueError) as e:
             last_err = type(e).__name__
         else:
