@@ -36,6 +36,8 @@ jobs:
       # stdlib-only Python already on the runner: no pip, no third-party code
       - name: Render cards
         env:
+          # an OAuth token from wakatime.com/oauth (read_stats scope), not the plugin
+          # API key: WakaTime API keys can no longer read stats (since Nov 2026)
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
           WAKA_RANGE: last_30_days
           WAKA_TOP: "6"

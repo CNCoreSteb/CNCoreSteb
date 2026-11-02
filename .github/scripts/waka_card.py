@@ -6,8 +6,11 @@ Standard library only: no pip installs, no third-party code at runtime.
 Usage:  python3 -I waka_card.py OUTPUT_DIR
 
 Environment:
-  WAKATIME_API_KEY  required
-  WAKA_RANGE        last_7_days (default) | last_30_days | last_6_months | last_year | all_time
+  WAKATIME_API_KEY  required. For wakatime.com, an OAuth token (waka_tok_...) from
+                    https://wakatime.com/oauth with the read_stats scope: since Nov 2026
+                    WakaTime API keys can only send coding activity, not read stats.
+                    A plain API key still works for servers that accept one (Wakapi etc.).
+  WAKA_RANGE       last_7_days (default) | last_30_days | last_6_months | last_year | all_time
   WAKA_TOP          number of language rows to show (default 5)
   WAKA_IGNORE       comma-separated language names to drop, case-insensitive (e.g. "GDScript, GDScript3")
   WAKA_API_BASE     default https://wakatime.com/api/v1 (set for Wakapi etc.)
@@ -67,6 +70,8 @@ THEMES = {
     },
 }
 
+OAUTH_URL = "https://wakatime.com/oauth"  # personal OAuth token, no app needed
+
 MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
 
 # layout (px)
@@ -107,11 +112,21 @@ def api_error(e: urllib.error.HTTPError) -> str:
     return f": {msg}" if msg else ""
 
 
+def is_oauth_token(key: str) -> bool:
+    return key.startswith("waka_tok_")
+
+
+def auth_header(key: str) -> str:
+    # OAuth tokens go as a Bearer token (RFC 6750); plain API keys as HTTP Basic
+    if is_oauth_token(key):
+        return f"Bearer {key}"
+    return "Basic " + base64.b64encode(key.encode()).decode()
+
+
 def fetch(api_base: str, rng: str, key: str) -> dict:
     url = f"{api_base}/users/current/stats/{rng}"
-    token = base64.b64encode(key.encode()).decode()
     req = urllib.request.Request(url, headers={
-        "Authorization": f"Basic {token}",
+        "Authorization": auth_header(key),
         "Accept": "application/json",
         "User-Agent": "waka-card/1.0",
     })
@@ -126,11 +141,15 @@ def fetch(api_base: str, rng: str, key: str) -> dict:
             reason = api_error(e)
             # retrying can't fix either of these, so stop with WakaTime's own reason
             if e.code == 401:
-                fail(f"WakaTime rejected the API key (HTTP 401{reason}); "
-                     "create a new key and update the WAKATIME_API_KEY secret")
+                fail(f"WakaTime rejected the credentials (HTTP 401{reason}); create a new "
+                     f"OAuth token at {OAUTH_URL} and put it in the WAKATIME_API_KEY secret")
+            if e.code == 403 and not is_oauth_token(key):
+                fail(f"WakaTime refused the {rng} stats (HTTP 403{reason}); WakaTime API keys "
+                     f"can only send coding activity now, so create an OAuth token at {OAUTH_URL} "
+                     "with the read_stats scope and put it in the WAKATIME_API_KEY secret")
             if e.code == 403:
-                fail(f"WakaTime refused the {rng} stats (HTTP 403{reason}); "
-                     "the key was accepted, so this is a permission problem, not a bad key")
+                fail(f"WakaTime refused the {rng} stats (HTTP 403{reason}); the token was "
+                     "accepted, so check that it has the read_stats scope")
             last_err = f"HTTP {e.code}{reason}"
         except (urllib.error.URLError, TimeoutError, ValueError) as e:
             last_err = type(e).__name__
