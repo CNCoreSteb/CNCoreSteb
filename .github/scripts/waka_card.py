@@ -116,6 +116,30 @@ def is_oauth_token(key: str) -> bool:
     return key.startswith("waka_tok_")
 
 
+def clean_key(raw: str) -> tuple[str, list[str]]:
+    """Undo common paste slips: surrounding quotes, a copied "Bearer " prefix."""
+    key, notes = raw.strip(), []
+    if len(key) >= 2 and key[0] == key[-1] and key[0] in "'\"":
+        key = key[1:-1].strip()
+        notes.append("dropped surrounding quotes")
+    if key.lower().startswith("bearer "):
+        key = key[7:].strip()
+        notes.append("dropped a leading 'Bearer '")
+    return key, notes
+
+
+def describe_key(key: str) -> str:
+    """The credential's shape for the log, without a single character of it."""
+    if is_oauth_token(key):
+        kind = "OAuth token (waka_tok_...)"
+    elif key.startswith("waka_"):
+        kind = "API key (waka_...)"
+    else:
+        kind = "unrecognised format (no waka_ prefix)"
+    space = ", contains whitespace" if any(ch.isspace() for ch in key) else ""
+    return f"{kind}, {len(key)} chars{space}, sent as {auth_header(key).split(' ', 1)[0]}"
+
+
 def auth_header(key: str) -> str:
     # OAuth tokens go as a Bearer token (RFC 6750); plain API keys as HTTP Basic
     if is_oauth_token(key):
@@ -140,9 +164,14 @@ def fetch(api_base: str, rng: str, key: str) -> dict:
         except urllib.error.HTTPError as e:
             reason = api_error(e)
             # retrying can't fix either of these, so stop with WakaTime's own reason
+            if e.code == 401 and is_oauth_token(key):
+                fail(f"WakaTime rejected the OAuth token (HTTP 401{reason}): it is mistyped, "
+                     f"revoked or expired; create a new one at {OAUTH_URL} "
+                     "and put it in the WAKATIME_API_KEY secret")
             if e.code == 401:
-                fail(f"WakaTime rejected the credentials (HTTP 401{reason}); create a new "
-                     f"OAuth token at {OAUTH_URL} and put it in the WAKATIME_API_KEY secret")
+                fail(f"WakaTime rejected the credentials (HTTP 401{reason}); the secret does not "
+                     "hold an OAuth token (waka_tok_...), which WakaTime needs for stats: create "
+                     f"one at {OAUTH_URL} and put it in the WAKATIME_API_KEY secret")
             if e.code == 403 and not is_oauth_token(key):
                 fail(f"WakaTime refused the {rng} stats (HTTP 403{reason}); WakaTime API keys "
                      f"can only send coding activity now, so create an OAuth token at {OAUTH_URL} "
@@ -336,9 +365,11 @@ def render(stats: dict, theme: dict, rng: str, updated: str, user: str) -> str:
 
 def main() -> None:
     out_dir = Path(sys.argv[1] if len(sys.argv) > 1 else ".")
-    key = os.environ.get("WAKATIME_API_KEY", "").strip()
+    key, notes = clean_key(os.environ.get("WAKATIME_API_KEY", ""))
     if not key:
         fail("WAKATIME_API_KEY is not set")
+    # flush: stdout is buffered in Actions and would land after a failure on stderr
+    print(f"credential: {describe_key(key)}" + "".join(f"; {n}" for n in notes), flush=True)
 
     rng = os.environ.get("WAKA_RANGE", "last_7_days").strip()
     if rng not in RANGES:
