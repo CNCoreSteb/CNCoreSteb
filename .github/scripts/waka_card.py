@@ -6,8 +6,11 @@ Standard library only: no pip installs, no third-party code at runtime.
 Usage:  python3 -I waka_card.py OUTPUT_DIR
 
 Environment:
-  WAKATIME_API_KEY  required
-  WAKA_RANGE        last_7_days (default) | last_30_days | last_6_months | last_year | all_time
+  WAKATIME_API_KEY  required. For wakatime.com, an OAuth token (waka_tok_...) from
+                    https://wakatime.com/oauth with the read_stats scope: since Nov 2026
+                    WakaTime API keys can only send coding activity, not read stats.
+                    A plain API key still works for servers that accept one (Wakapi etc.).
+  WAKA_RANGE       last_7_days (default) | last_30_days | last_6_months | last_year | all_time
   WAKA_TOP          number of language rows to show (default 5)
   WAKA_IGNORE       comma-separated language names to drop, case-insensitive (e.g. "GDScript, GDScript3")
   WAKA_API_BASE     default https://wakatime.com/api/v1 (set for Wakapi etc.)
@@ -67,6 +70,8 @@ THEMES = {
     },
 }
 
+OAUTH_URL = "https://wakatime.com/oauth"  # personal OAuth token, no app needed
+
 MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
 
 # layout (px)
@@ -91,11 +96,61 @@ def fail(msg: str) -> None:
     sys.exit(1)
 
 
+def api_error(e: urllib.error.HTTPError) -> str:
+    """WakaTime's own reason from an error body ({"error": ...} or {"errors": [...]})."""
+    try:
+        body = json.loads(e.read(4096) or b"{}")
+    except (OSError, ValueError):
+        return ""
+    if not isinstance(body, dict):
+        return ""
+    msg = body.get("error") or body.get("errors") or ""
+    if isinstance(msg, list):
+        msg = "; ".join(str(m) for m in msg)
+    # one printable line, so it can't start a workflow command in the Actions log
+    msg = "".join(ch if ch.isprintable() else " " for ch in str(msg)).strip()[:200]
+    return f": {msg}" if msg else ""
+
+
+def is_oauth_token(key: str) -> bool:
+    return key.startswith("waka_tok_")
+
+
+def clean_key(raw: str) -> tuple[str, list[str]]:
+    """Undo common paste slips: surrounding quotes, a copied "Bearer " prefix."""
+    key, notes = raw.strip(), []
+    if len(key) >= 2 and key[0] == key[-1] and key[0] in "'\"":
+        key = key[1:-1].strip()
+        notes.append("dropped surrounding quotes")
+    if key.lower().startswith("bearer "):
+        key = key[7:].strip()
+        notes.append("dropped a leading 'Bearer '")
+    return key, notes
+
+
+def describe_key(key: str) -> str:
+    """The credential's shape for the log, without a single character of it."""
+    if is_oauth_token(key):
+        kind = "OAuth token (waka_tok_...)"
+    elif key.startswith("waka_"):
+        kind = "API key (waka_...)"
+    else:
+        kind = "unrecognised format (no waka_ prefix)"
+    space = ", contains whitespace" if any(ch.isspace() for ch in key) else ""
+    return f"{kind}, {len(key)} chars{space}, sent as {auth_header(key).split(' ', 1)[0]}"
+
+
+def auth_header(key: str) -> str:
+    # OAuth tokens go as a Bearer token (RFC 6750); plain API keys as HTTP Basic
+    if is_oauth_token(key):
+        return f"Bearer {key}"
+    return "Basic " + base64.b64encode(key.encode()).decode()
+
+
 def fetch(api_base: str, rng: str, key: str) -> dict:
     url = f"{api_base}/users/current/stats/{rng}"
-    token = base64.b64encode(key.encode()).decode()
     req = urllib.request.Request(url, headers={
-        "Authorization": f"Basic {token}",
+        "Authorization": auth_header(key),
         "Accept": "application/json",
         "User-Agent": "waka-card/1.0",
     })
@@ -107,9 +162,24 @@ def fetch(api_base: str, rng: str, key: str) -> dict:
                 status = resp.status
                 data = (json.load(resp) or {}).get("data") or {}
         except urllib.error.HTTPError as e:
-            if e.code in (401, 403):
-                fail(f"WakaTime rejected the API key (HTTP {e.code})")
-            last_err = f"HTTP {e.code}"
+            reason = api_error(e)
+            # retrying can't fix either of these, so stop with WakaTime's own reason
+            if e.code == 401 and is_oauth_token(key):
+                fail(f"WakaTime rejected the OAuth token (HTTP 401{reason}): it is mistyped, "
+                     f"revoked or expired; create a new one at {OAUTH_URL} "
+                     "and put it in the WAKATIME_API_KEY secret")
+            if e.code == 401:
+                fail(f"WakaTime rejected the credentials (HTTP 401{reason}); the secret does not "
+                     "hold an OAuth token (waka_tok_...), which WakaTime needs for stats: create "
+                     f"one at {OAUTH_URL} and put it in the WAKATIME_API_KEY secret")
+            if e.code == 403 and not is_oauth_token(key):
+                fail(f"WakaTime refused the {rng} stats (HTTP 403{reason}); WakaTime API keys "
+                     f"can only send coding activity now, so create an OAuth token at {OAUTH_URL} "
+                     "with the read_stats scope and put it in the WAKATIME_API_KEY secret")
+            if e.code == 403:
+                fail(f"WakaTime refused the {rng} stats (HTTP 403{reason}); the token was "
+                     "accepted, so check that it has the read_stats scope")
+            last_err = f"HTTP {e.code}{reason}"
         except (urllib.error.URLError, TimeoutError, ValueError) as e:
             last_err = type(e).__name__
         else:
@@ -295,9 +365,11 @@ def render(stats: dict, theme: dict, rng: str, updated: str, user: str) -> str:
 
 def main() -> None:
     out_dir = Path(sys.argv[1] if len(sys.argv) > 1 else ".")
-    key = os.environ.get("WAKATIME_API_KEY", "").strip()
+    key, notes = clean_key(os.environ.get("WAKATIME_API_KEY", ""))
     if not key:
         fail("WAKATIME_API_KEY is not set")
+    # flush: stdout is buffered in Actions and would land after a failure on stderr
+    print(f"credential: {describe_key(key)}" + "".join(f"; {n}" for n in notes), flush=True)
 
     rng = os.environ.get("WAKA_RANGE", "last_7_days").strip()
     if rng not in RANGES:
